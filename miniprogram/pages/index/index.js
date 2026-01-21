@@ -470,27 +470,28 @@ Page({
     })
   },
 
-  // ========== 【新增】执行删除好友 ==========
   async doDeleteFriend(user, index) {
     wx.showLoading({ title: '删除中...' })
-
+  
     try {
       const res = await wx.cloud.callFunction({
         name: 'deleteFriend',
         data: { friendId: user._id }
       })
-
+  
       if (res.result && res.result.success) {
         wx.showToast({ title: '已删除', icon: 'success' })
         
-        // 从本地列表中移除该好友
+        // 更新好友列表UI
         const newUserList = this.data.userList.filter((_, i) => i !== index)
         this.setData({ userList: newUserList })
         
+        // 关键：刷新会话列表，删除与该好友的会话
+        this.refreshChatList()
+        
         // 如果好友列表为空，可以选择关闭弹窗
         if (newUserList.length === 0) {
-          // 可选：延迟关闭弹窗
-          // setTimeout(() => this.setData({ showContactModal: false }), 500)
+          setTimeout(() => this.setData({ showContactModal: false }), 500)
         }
       } else {
         throw new Error(res.result?.error || '删除失败')

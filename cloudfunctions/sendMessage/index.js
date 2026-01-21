@@ -6,7 +6,7 @@ const _ = db.command
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
   const openid = wxContext.OPENID
-  const { chatId, content, type = 'text', duration } = event  // 新增 duration 参数
+  const { chatId, content, type = 'text', duration } = event
 
   if (!openid) {
     return { success: false, error: '获取用户身份失败' }
@@ -19,19 +19,7 @@ exports.main = async (event, context) => {
   }
 
   try {
-    let senderInfo = { nickName: '用户', avatarUrl: '' }
-    try {
-      const userRes = await db.collection('users').doc(openid).get()
-      if (userRes.data) {
-        senderInfo = {
-          nickName: userRes.data.nickName || '用户',
-          avatarUrl: userRes.data.avatarUrl || ''
-        }
-      }
-    } catch (e) {
-      console.warn('获取用户信息失败，使用默认值')
-    }
-
+    // 1. 获取会话信息
     let chatData
     try {
       const chatRes = await db.collection('chats').doc(chatId).get()
@@ -49,7 +37,49 @@ exports.main = async (event, context) => {
       return { success: false, error: '无权发送消息' }
     }
 
-    // 构建消息数据
+    // 2. ★★★ 关键新增：私聊时检查好友关系 ★★★
+    if (members.length === 2) {
+      const otherUserId = members.find(id => id !== openid)
+      
+      if (otherUserId) {
+        // 使用 or 查询两种可能的组合，与 deleteFriend 保持一致
+        const friendRes = await db.collection('friends')
+          .where(_.and([
+            _.or([
+              { userId1: openid, userId2: otherUserId },
+              { userId1: otherUserId, userId2: openid }
+            ]),
+            { status: 'accepted' }
+          ]))
+          .limit(1)
+          .get()
+
+        if (!friendRes.data || friendRes.data.length === 0) {
+          return { 
+            success: false, 
+            error: '对方不是你的好友，无法发送消息',
+            code: 'NOT_FRIEND'  // 返回错误码，便于前端处理
+          }
+        }
+      }
+    }
+    // ★★★ 好友关系检查结束 ★★★
+
+    // 3. 获取发送者信息
+    let senderInfo = { nickName: '用户', avatarUrl: '' }
+    try {
+      const userRes = await db.collection('users').doc(openid).get()
+      if (userRes.data) {
+        senderInfo = {
+          nickName: userRes.data.nickName || '用户',
+          avatarUrl: userRes.data.avatarUrl || ''
+        }
+      }
+    } catch (e) {
+      console.warn('获取用户信息失败，使用默认值')
+    }
+
+    // 4. 构建消息数据
     const messageData = {
       chatId,
       senderId: openid,
@@ -67,9 +97,9 @@ exports.main = async (event, context) => {
 
     const msgRes = await db.collection('messages').add({ data: messageData })
 
+    // 5. 更新会话的最后消息
     const otherMembers = members.filter(id => id !== openid)
     
-    // 生成lastMessage预览文本
     let lastMessageContent = content
     if (type === 'image') {
       lastMessageContent = '[图片]'
@@ -97,12 +127,11 @@ exports.main = async (event, context) => {
       data: updateData
     })
 
-    // 转换云存储URL
+    // 6. 转换云存储URL
     let returnContent = content
     let returnAvatarUrl = senderInfo.avatarUrl
     
     const urlsToConvert = []
-    // 图片和语音都需要转换
     if ((type === 'image' || type === 'voice') && content.startsWith('cloud://')) {
       urlsToConvert.push(content)
     }
@@ -131,7 +160,7 @@ exports.main = async (event, context) => {
       }
     }
 
-    // 返回消息对象
+    // 7. 返回消息对象
     const returnMessage = {
       ...messageData,
       _id: msgRes._id,
@@ -143,7 +172,6 @@ exports.main = async (event, context) => {
       createTime: new Date()
     }
 
-    // 语音消息包含duration
     if (type === 'voice' && duration) {
       returnMessage.duration = duration
     }
