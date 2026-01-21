@@ -62,7 +62,8 @@ Page({
     
     // 读取最近使用的表情
     const recentEmojis = wx.getStorageSync('recent_emojis') || []
-    
+
+
     this.setData({
       chatId,
       userId: app.globalData.userId,
@@ -72,12 +73,16 @@ Page({
       recentEmojis: recentEmojis
     })
 
-    // 初始化表情列表
+
     this.initEmojiList()
 
     this.convertUserAvatar().then(() => {
       this.loadMessages()
       this.startMessageWatcher()
+    })
+    // 监听键盘高度变化
+    wx.onKeyboardHeightChange(res => {
+      this.onKeyboardHeightChange({ detail: { height: res.height } })
     })
   },
 
@@ -229,6 +234,8 @@ Page({
   onUnload() {
     this._isPageActive = false
     this.closeMessageWatcher()
+
+    wx.offKeyboardHeightChange()
     
     if (this.scrollTimer) {
       clearTimeout(this.scrollTimer)
@@ -1036,28 +1043,53 @@ Page({
     })
   },
 
+
   toggleMore() {
     const newShowMore = !this.data.showMore
-    this.setData({ 
-      showMore: newShowMore,
-      showEmoji: false
-    }, () => {
-      if (newShowMore) {
-        this.scrollToBottom()
-      }
-    })
+    
+    if (newShowMore) {
+      // 显示更多面板时，先让输入框失去焦点收起键盘
+      this.setData({ 
+        inputFocus: false,
+        keyboardHeight: 0 
+      })
+    }
+    
+    setTimeout(() => {
+      this.setData({ 
+        showMore: newShowMore,
+        showEmoji: false
+      }, () => {
+        if (newShowMore) {
+          this.scrollToBottom()
+        }
+      })
+    }, newShowMore ? 50 : 0)
   },
+
 
   toggleEmoji() {
     const newShowEmoji = !this.data.showEmoji
-    this.setData({ 
-      showEmoji: newShowEmoji,
-      showMore: false
-    }, () => {
-      if (newShowEmoji) {
-        this.scrollToBottom()
-      }
-    })
+    
+    if (newShowEmoji) {
+      // 显示表情面板时，先让输入框失去焦点收起键盘
+      this.setData({ 
+        inputFocus: false,
+        keyboardHeight: 0 
+      })
+    }
+    
+    // 延迟显示表情面板，等待键盘收起
+    setTimeout(() => {
+      this.setData({ 
+        showEmoji: newShowEmoji,
+        showMore: false
+      }, () => {
+        if (newShowEmoji) {
+          this.scrollToBottom()
+        }
+      })
+    }, newShowEmoji ? 50 : 0)
   },
 
   toggleVoice() {
@@ -1177,17 +1209,23 @@ Page({
   },
 
   onKeyboardHeightChange(e) {
+    const height = e.detail.height || 0
+    
     this.setData({
-      keyboardHeight: e.detail.height
+      keyboardHeight: height
     })
     
-    if (e.detail.height > 0) {
-      // 键盘弹出时关闭表情和更多面板
+    if (height > 0) {
+      // 键盘弹出时，关闭表情和更多面板
       this.setData({
         showEmoji: false,
         showMore: false
       })
-      this.scrollToBottom()
+      
+      // 延迟滚动到底部，确保布局完成
+      setTimeout(() => {
+        this.scrollToBottom()
+      }, 100)
     }
   },
 
