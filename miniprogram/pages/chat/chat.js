@@ -1122,22 +1122,57 @@ Page({
   },
 
   async previewImage(e) {
-    let url = e.currentTarget.dataset.url
-
-    if (this.isCloudUrl(url)) {
+    const msgId = e.currentTarget.dataset.msgid
+    
+    // 通过消息ID从列表中找到当前消息，直接使用其content（已转换的URL）
+    const currentMsg = this.data.messageList.find(m => m._id === msgId)
+    if (!currentMsg || !currentMsg.content) return
+    
+    let currentUrl = currentMsg.content
+    
+    // 如果还是云存储URL（转换失败的情况），尝试再次转换
+    if (this.isCloudUrl(currentUrl)) {
       wx.showLoading({ title: '加载中...' })
       try {
-        url = await this.convertUrlViaCloudFunction(url)
+        currentUrl = await this.convertUrlViaCloudFunction(currentUrl)
       } finally {
         wx.hideLoading()
       }
     }
     
-    const validUrls = this.imageList.filter(u => u && !this.isCloudUrl(u))
+    // 从 messageList 构建图片列表，确保与 current 使用同一数据源
+    const validUrls = []
+    let currentIndex = -1
+    
+    this.data.messageList.forEach(msg => {
+      if (msg.type === 'image' && msg.content && !msg.recalled && !this.isCloudUrl(msg.content)) {
+        if (msg._id === msgId) {
+          currentIndex = validUrls.length
+        }
+        validUrls.push(msg.content)
+      }
+    })
+    
+    // 如果当前URL不在列表中（刚转换成功的情况），插入到正确位置
+    if (currentIndex === -1 && currentUrl && !this.isCloudUrl(currentUrl)) {
+      // 计算应该插入的位置
+      let insertIndex = 0
+      for (const msg of this.data.messageList) {
+        if (msg._id === msgId) break
+        if (msg.type === 'image' && msg.content && !msg.recalled && !this.isCloudUrl(msg.content)) {
+          insertIndex++
+        }
+      }
+      validUrls.splice(insertIndex, 0, currentUrl)
+      currentIndex = insertIndex
+    }
+    
+    // 使用列表中的URL作为current，确保精确匹配
+    const finalCurrentUrl = currentIndex >= 0 ? validUrls[currentIndex] : currentUrl
     
     wx.previewImage({
-      current: url,
-      urls: validUrls.length > 0 ? validUrls : [url]
+      current: finalCurrentUrl,
+      urls: validUrls.length > 0 ? validUrls : [currentUrl]
     })
   },
 
