@@ -1,0 +1,235 @@
+<view class="container">
+  <!-- 消息列表区域 -->
+  <scroll-view 
+    class="message-list"
+    scroll-y
+    enhanced
+    show-scrollbar="{{false}}"
+    scroll-into-view="{{scrollToMessage}}"
+    scroll-with-animation
+    bindscrolltoupper="loadMoreMessages"
+    upper-threshold="50"
+    id="messageScroll"
+    style="height: calc(100vh - 120rpx - {{showEmoji ? 500 : (showMore ? 400 : 0)}}rpx - {{keyboardHeight}}px)"
+  >
+    <!-- 加载更多提示 -->
+    <view class="load-more-tip" wx:if="{{loadingMore}}">
+      <text>加载历史消息...</text>
+    </view>
+    <view class="load-more-tip" wx:elif="{{!hasMore}}">
+      <text>没有更多消息了</text>
+    </view>
+
+    <!-- 消息列表 -->
+    <view 
+      class="message-item {{item.senderId === userId ? 'message-self' : 'message-other'}}"
+      wx:for="{{messageList}}"
+      wx:key="_id"
+      id="msg-{{item._id}}"
+    >
+      <!-- 已撤回的消息 -->
+      <view class="recalled-message" wx:if="{{item.recalled}}">
+        <text>{{item.senderId === userId ? '你' : (item.senderInfo.nickName || '对方')}}撤回了一条消息</text>
+      </view>
+
+      <!-- 正常消息 -->
+      <block wx:else>
+        <!-- 头像 -->
+        <image 
+          class="message-avatar" 
+          src="{{item.senderId === userId ? (userInfo.avatarUrl || defaultAvatar) : (item.senderInfo.avatarUrl || defaultAvatar)}}"
+          mode="aspectFill"
+          binderror="onAvatarError"
+          data-msgid="{{item._id}}"
+          data-isself="{{item.senderId === userId}}"
+        />
+        
+        <!-- 消息内容 -->
+        <view 
+          class="message-content"
+          bindlongpress="onMessageLongPress"
+          data-msg="{{item}}"
+        >
+          <!-- 发送者昵称（群聊时显示） -->
+          <text class="sender-name" wx:if="{{chatType === 'group' && item.senderId !== userId}}">
+            {{item.senderInfo.nickName}}
+          </text>
+          
+          <!-- 文本消息 -->
+          <view class="message-bubble" wx:if="{{item.type === 'text'}}">
+            <text class="message-text" user-select>{{item.content}}</text>
+          </view>
+          
+          <!-- 图片消息 -->
+          <view class="message-image-wrap" wx:elif="{{item.type === 'image'}}">
+            <!-- 图片加载中状态 -->
+            <view class="image-loading" wx:if="{{!item.content || item.content.indexOf('cloud://') === 0}}">
+              <text>图片加载中...</text>
+            </view>
+            <image 
+              wx:else
+              class="message-image"
+              src="{{item.content}}"
+              mode="widthFix"
+              bindtap="previewImage"
+              binderror="onImageError"
+              data-url="{{item.originalCloudUrl || item.content}}"
+              data-msgid="{{item._id}}"
+              lazy-load
+            />
+            <!-- 图片加载失败提示 -->
+            <view class="image-error-tip" wx:if="{{item.loadError}}">
+              <text>图片加载失败</text>
+              <text class="retry-btn" catchtap="retryLoadImage" data-msgid="{{item._id}}">点击重试</text>
+            </view>
+          </view>
+
+          <!-- 发送状态 -->
+          <view class="message-status" wx:if="{{item.senderId === userId}}">
+            <text wx:if="{{item.status === 'sending'}}" class="status-sending">发送中</text>
+            <text wx:elif="{{item.status === 'failed'}}" class="status-failed" bindtap="resendMessage" data-msg="{{item}}">发送失败，点击重试</text>
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-placeholder" id="msg-bottom"></view>
+  </scroll-view>
+
+  <!-- 消息操作菜单 -->
+  <view class="message-menu-mask" wx:if="{{showMessageMenu}}" bindtap="onMenuMaskTap">
+    <view 
+      class="message-menu" 
+      style="left: {{menuPosition.x}}px; top: {{menuPosition.y}}px;"
+      catchtap
+    >
+      <view 
+        class="menu-item" 
+        wx:if="{{selectedMessage.type === 'text'}}"
+        bindtap="copyMessage"
+      >
+        <text>复制</text>
+      </view>
+      
+      <view 
+        class="menu-item" 
+        wx:if="{{selectedMessage.senderId === userId}}"
+        bindtap="recallMessage"
+      >
+        <text>撤回</text>
+      </view>
+      
+      <view class="menu-item" bindtap="deleteMessageLocal">
+        <text>删除</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 输入区域 -->
+  <view class="input-area safe-area-bottom">
+    <view class="input-btn" bindtap="toggleVoice">
+      <image src="/images/{{showVoice ? 'keyboard' : 'voice'}}.png" mode="aspectFit"/>
+    </view>
+
+    <view class="input-wrap" wx:if="{{!showVoice}}">
+      <input 
+        class="text-input"
+        type="text"
+        value="{{inputValue}}"
+        bindinput="onInput"
+        bindconfirm="sendTextMessage"
+        bindfocus="onInputFocus"
+        bindblur="onInputBlur"
+        confirm-type="send"
+        adjust-position="{{false}}"
+        cursor-spacing="20"
+        placeholder="输入消息..."
+        focus="{{inputFocus}}"
+      />
+    </view>
+
+    <view 
+      class="voice-btn" 
+      wx:else
+      bindtouchstart="startRecord"
+      bindtouchend="stopRecord"
+      bindtouchcancel="cancelRecord"
+    >
+      <text>按住 说话</text>
+    </view>
+
+    <view class="input-btn {{showEmoji ? 'active' : ''}}" bindtap="toggleEmoji">
+      <image src="/images/{{showEmoji ? 'keyboard' : 'emoji'}}.png" mode="aspectFit"/>
+    </view>
+
+    <view class="input-btn" wx:if="{{!inputValue}}" bindtap="toggleMore">
+      <image src="/images/add.png" mode="aspectFit"/>
+    </view>
+    <view class="send-btn" wx:else bindtap="sendTextMessage">
+      <text>发送</text>
+    </view>
+  </view>
+
+  <!-- 表情面板 -->
+  <view class="emoji-panel {{showEmoji ? 'show' : ''}}" wx:if="{{showEmoji}}">
+    <!-- 表情分类标签 -->
+    <view class="emoji-category-tabs">
+      <view 
+        class="emoji-tab {{currentEmojiCategory === item.key ? 'active' : ''}}"
+        wx:for="{{emojiCategories}}"
+        wx:key="key"
+        data-category="{{item.key}}"
+        bindtap="switchEmojiCategory"
+      >
+        <text>{{item.name}}</text>
+      </view>
+    </view>
+    
+    <!-- 表情列表 -->
+    <scroll-view class="emoji-scroll" scroll-y>
+      <view class="emoji-grid">
+        <view 
+          class="emoji-item"
+          wx:for="{{emojiList}}"
+          wx:key="*this"
+          data-emoji="{{item}}"
+          bindtap="selectEmoji"
+        >
+          <text class="emoji-text">{{item}}</text>
+        </view>
+      </view>
+    </scroll-view>
+    
+    <!-- 底部操作栏 -->
+    <view class="emoji-bottom-bar">
+      <view class="emoji-delete-btn" bindtap="deleteInputChar">
+        <image src="/images/delete.png" mode="aspectFit" class="delete-icon"/>
+        <text>删除</text>
+      </view>
+      <view class="emoji-send-btn {{inputValue ? 'active' : ''}}" bindtap="sendTextMessage">
+        <text>发送</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 更多功能面板 -->
+  <view class="more-panel {{showMore ? 'show' : ''}}" wx:if="{{showMore}}">
+    <view class="panel-grid">
+      <view class="panel-item" bindtap="chooseImage">
+        <view class="panel-icon">
+          <image src="/images/photo.png" mode="aspectFit"/>
+        </view>
+        <text>相册</text>
+      </view>
+      <view class="panel-item" bindtap="takePhoto">
+        <view class="panel-icon">
+          <image src="/images/camera.png" mode="aspectFit"/>
+        </view>
+        <text>拍摄</text>
+      </view>
+    </view>
+  </view>
+
+  <view style="height: {{keyboardHeight}}px"></view>
+</view>

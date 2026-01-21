@@ -1,0 +1,15 @@
+.virtual-container {
+    height: 100%;
+    width: 100%;
+  }
+  
+  .virtual-phantom {
+    position: relative;
+  }
+  
+  .virtual-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+  }

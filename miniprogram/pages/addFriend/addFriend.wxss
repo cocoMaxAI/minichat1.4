@@ -1,0 +1,113 @@
+.container {
+    min-height: 100vh;
+    background: #f5f5f5;
+  }
+  
+  .search-section {
+    display: flex;
+    align-items: center;
+    padding: 20rpx;
+    background: #fff;
+  }
+  
+  .search-box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: #f5f5f5;
+    border-radius: 8rpx;
+    padding: 16rpx 20rpx;
+  }
+  
+  .search-input {
+    flex: 1;
+    margin-left: 16rpx;
+    font-size: 28rpx;
+  }
+  
+  .search-btn {
+    margin-left: 20rpx;
+    color: #07C160;
+    font-size: 30rpx;
+  }
+  
+  .request-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    margin-top: 20rpx;
+    padding: 30rpx;
+    font-size: 32rpx;
+  }
+  
+  .arrow {
+    color: #999;
+    font-size: 40rpx;
+  }
+  
+  .result-section {
+    margin-top: 20rpx;
+  }
+  
+  .section-title {
+    padding: 20rpx 30rpx;
+    font-size: 26rpx;
+    color: #999;
+  }
+  
+  .loading, .empty {
+    text-align: center;
+    padding: 60rpx;
+    color: #999;
+    font-size: 28rpx;
+  }
+  
+  .user-list {
+    background: #fff;
+  }
+  
+  .user-item {
+    display: flex;
+    align-items: center;
+    padding: 24rpx 30rpx;
+    border-bottom: 1rpx solid #eee;
+  }
+  
+  .avatar {
+    width: 90rpx;
+    height: 90rpx;
+    border-radius: 8rpx;
+  }
+  
+  .user-info {
+    flex: 1;
+    margin-left: 24rpx;
+  }
+  
+  .nickname {
+    font-size: 32rpx;
+    color: #333;
+    display: block;
+  }
+  
+  .user-id {
+    font-size: 24rpx;
+    color: #999;
+    margin-top: 8rpx;
+    display: block;
+  }
+  
+  .action-btn {
+    padding: 12rpx 30rpx;
+    border-radius: 8rpx;
+    font-size: 26rpx;
+    background: #07C160;
+    color: #fff;
+  }
+  
+  .action-btn.accepted,
+  .action-btn.pending {
+    background: #f5f5f5;
+    color: #999;
+  }

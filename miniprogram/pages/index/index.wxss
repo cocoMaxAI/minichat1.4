@@ -1,0 +1,430 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #EDEDED;
+  }
+  
+  /* 搜索栏 */
+  .search-bar {
+    display: flex;
+    align-items: center;
+    padding: 16rpx 20rpx;
+    background-color: #EDEDED;
+  }
+  
+  .search-input-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    height: 64rpx;
+    padding: 0 20rpx;
+    background-color: #fff;
+    border-radius: 8rpx;
+  }
+  
+  .search-input {
+    flex: 1;
+    margin-left: 16rpx;
+    font-size: 28rpx;
+  }
+  
+  .placeholder {
+    color: #999;
+  }
+  
+  .add-btn {
+    width: 60rpx;
+    height: 60rpx;
+    margin-left: 20rpx;
+    font-size: 48rpx;
+    color: #333;
+    text-align: center;
+    line-height: 56rpx;
+  }
+  
+  /* 会话列表 */
+  .chat-list {
+    flex: 1;
+    background-color: #fff;
+  }
+  
+  .chat-item {
+    display: flex;
+    align-items: center;
+    padding: 24rpx 30rpx;
+    background-color: #fff;
+    border-bottom: 1rpx solid #ECECEC;
+  }
+  
+  .chat-item:active {
+    background-color: #ECECEC;
+  }
+  
+  /* 头像区域 */
+  .avatar-wrap {
+    position: relative;
+    margin-right: 24rpx;
+  }
+  
+  .avatar {
+    width: 96rpx;
+    height: 96rpx;
+    border-radius: 8rpx;
+    background-color: #E5E5E5;
+  }
+  
+  .unread-badge {
+    position: absolute;
+    top: -10rpx;
+    right: -10rpx;
+    min-width: 36rpx;
+    height: 36rpx;
+    padding: 0 8rpx;
+    font-size: 22rpx;
+    color: #fff;
+    background-color: #F43530;
+    border-radius: 18rpx;
+    text-align: center;
+    line-height: 36rpx;
+  }
+  
+  /* 会话信息 */
+  .chat-info {
+    flex: 1;
+    overflow: hidden;
+  }
+  
+  .chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12rpx;
+  }
+  
+  .chat-name {
+    font-size: 32rpx;
+    color: #333;
+    font-weight: 500;
+  }
+  
+  .chat-time {
+    font-size: 24rpx;
+    color: #B2B2B2;
+  }
+  
+  .chat-preview {
+    display: flex;
+    align-items: center;
+  }
+  
+  .last-message {
+    flex: 1;
+    font-size: 26rpx;
+    color: #999;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  /* 加载更多 */
+  .loading-more {
+    padding: 30rpx;
+    text-align: center;
+    color: #999;
+    font-size: 26rpx;
+  }
+  
+  /* 空状态 */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 200rpx;
+    color: #999;
+  }
+  
+  .empty-tip {
+    margin-top: 20rpx;
+    font-size: 24rpx;
+  }
+  
+  /* 联系人选择弹窗 */
+  .contact-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    width: 80%;
+    max-height: 70vh;
+    background-color: #fff;
+    border-radius: 16rpx;
+    overflow: hidden;
+  }
+  
+  .modal-header {
+    padding: 30rpx;
+    text-align: center;
+    font-size: 32rpx;
+    font-weight: 500;
+    border-bottom: 1rpx solid #eee;
+  }
+  
+  .contact-list {
+    max-height: 60vh;
+  }
+  
+  .contact-item {
+    display: flex;
+    align-items: center;
+    padding: 24rpx 30rpx;
+    border-bottom: 1rpx solid #f5f5f5;
+  }
+  
+  .contact-item:active {
+    background-color: #f5f5f5;
+  }
+  
+  .contact-avatar {
+    width: 80rpx;
+    height: 80rpx;
+    border-radius: 8rpx;
+    margin-right: 24rpx;
+  }
+  
+  .contact-name {
+    font-size: 30rpx;
+    color: #333;
+  }
+
+  .contact-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    width: 80%;
+    max-height: 70vh;
+    background-color: #fff;
+    border-radius: 16rpx;
+    overflow: hidden;
+  }
+  
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30rpx;
+    font-size: 32rpx;
+    font-weight: 500;
+    border-bottom: 1rpx solid #eee;
+  }
+  
+  .add-friend-btn {
+    font-size: 28rpx;
+    color: #07C160;
+    font-weight: normal;
+    padding: 8rpx 20rpx;
+    border: 1rpx solid #07C160;
+    border-radius: 8rpx;
+  }
+  
+  .add-friend-btn:active {
+    background-color: #07C160;
+    color: #fff;
+  }
+  
+  .contact-list {
+    max-height: 60vh;
+  }
+  
+  .contact-item {
+    display: flex;
+    align-items: center;
+    padding: 24rpx 30rpx;
+    border-bottom: 1rpx solid #f5f5f5;
+  }
+  
+  .contact-item:active {
+    background-color: #f5f5f5;
+  }
+  
+  .contact-avatar {
+    width: 80rpx;
+    height: 80rpx;
+    border-radius: 8rpx;
+    margin-right: 24rpx;
+    background-color: #e5e5e5;
+  }
+  
+  .contact-name {
+    font-size: 30rpx;
+    color: #333;
+  }
+  
+  /* 空状态样式 */
+  .empty-friends {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80rpx 40rpx;
+    color: #999;
+    font-size: 28rpx;
+  }
+  
+  .empty-friends .empty-tip {
+    margin-top: 24rpx;
+    font-size: 26rpx;
+    color: #07C160;
+    padding: 16rpx 40rpx;
+    border: 1rpx solid #07C160;
+    border-radius: 8rpx;
+  }
+  
+  .empty-friends .empty-tip:active {
+    background-color: #07C160;
+    color: #fff;
+  }
+
+  .user-avatar-wrap {
+    margin-right: 16rpx;
+  }
+  
+  .user-avatar {
+    width: 64rpx;
+    height: 64rpx;
+    border-radius: 8rpx;
+    background-color: #E5E5E5;
+  }
+  
+  /* ========== 用户菜单弹窗（可选方案） ========== */
+  .user-menu-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+  }
+  
+  .user-menu-content {
+    position: absolute;
+    top: 180rpx;
+    left: 30rpx;
+    width: 400rpx;
+    background-color: #fff;
+    border-radius: 16rpx;
+    overflow: hidden;
+    box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.15);
+  }
+  
+  .user-info-header {
+    display: flex;
+    align-items: center;
+    padding: 30rpx;
+    background: linear-gradient(135deg, #07C160 0%, #10B068 100%);
+  }
+  
+  .menu-user-avatar {
+    width: 80rpx;
+    height: 80rpx;
+    border-radius: 50%;
+    border: 3rpx solid rgba(255, 255, 255, 0.8);
+    margin-right: 20rpx;
+  }
+  
+  .menu-user-name {
+    color: #fff;
+    font-size: 32rpx;
+    font-weight: 500;
+  }
+  
+  .menu-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30rpx;
+    border-bottom: 1rpx solid #f0f0f0;
+    font-size: 30rpx;
+    color: #333;
+  }
+  
+  .menu-item:active {
+    background-color: #f5f5f5;
+  }
+  
+  .menu-item:last-child {
+    border-bottom: none;
+  }
+  
+  .menu-item.logout {
+    color: #F43530;
+    justify-content: center;
+  }
+  
+  .menu-arrow {
+    color: #ccc;
+    font-size: 36rpx;
+  }
+  /* 联系人项 - 支持删除按钮 */
+
+  .contact-item {
+    display: flex;
+    align-items: center;
+    padding: 24rpx 32rpx;
+    border-bottom: 1rpx solid #f0f0f0;
+    position: relative;
+  }
+  
+  .contact-item:active {
+    background-color: #f5f5f5;
+  }
+  
+  /* 删除好友按钮 */
+  .delete-friend-btn {
+    position: absolute;
+    right: 32rpx;
+    padding: 12rpx 24rpx;
+    background-color: #FA5151;
+    border-radius: 8rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .delete-friend-btn text {
+    color: #ffffff;
+    font-size: 24rpx;
+  }
+  
+  /* 弹窗提示文字 */
+  .modal-tip {
+    padding: 16rpx 32rpx;
+    background-color: #f9f9f9;
+    border-bottom: 1rpx solid #eee;
+  }
+  
+  .modal-tip text {
+    font-size: 24rpx;
+    color: #999;
+  }

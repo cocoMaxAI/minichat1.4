@@ -1,0 +1,53 @@
+<view class="container">
+  <!-- 头像区域 -->
+  <view class="profile-header">
+    <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+      <image 
+        class="profile-avatar" 
+        src="{{displayAvatarUrl || '/images/default-avatar.png'}}" 
+        mode="aspectFill"
+        binderror="onAvatarLoadError"
+      />
+      <view class="avatar-edit-icon">
+        <text class="icon-text">📷</text>
+      </view>
+    </button>
+    <text class="avatar-tip">点击更换头像</text>
+    <text class="upload-status" wx:if="{{uploading}}">上传中...</text>
+  </view>
+
+  <!-- 表单区域 -->
+  <view class="profile-form">
+    <view class="form-item">
+      <text class="form-label">昵称</text>
+      <input 
+        class="form-input"
+        type="nickname"
+        placeholder="请输入昵称"
+        value="{{userInfo.nickName}}"
+        bindinput="onInputNickname"
+        bindblur="onNicknameBlur"
+        maxlength="20"
+      />
+    </view>
+    
+    <view class="form-item readonly">
+      <text class="form-label">用户ID</text>
+      <text class="form-value user-id">{{userId || '未知'}}</text>
+    </view>
+  </view>
+
+  <!-- 头像提示 -->
+  <view class="avatar-warning" wx:if="{{isInvalidAvatar}}">
+    <text class="warning-text">⚠️ 当前头像无法正常显示，请重新上传</text>
+  </view>
+
+  <!-- 保存按钮 -->
+  <button 
+    class="save-btn {{canSave ? '' : 'disabled'}}" 
+    bindtap="saveProfile"
+    disabled="{{!canSave}}"
+  >
+    {{saving ? '保存中...' : (uploading ? '头像上传中...' : '保存修改')}}
+  </button>
+</view>

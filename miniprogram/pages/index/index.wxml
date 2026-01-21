@@ -1,0 +1,169 @@
+<view class="container">
+  <!-- 顶部搜索栏 -->
+  <view class="search-bar">
+    <!-- 用户头像（点击显示菜单） -->
+    <view class="user-avatar-wrap" bindtap="onAvatarTap">
+      <image 
+        class="user-avatar" 
+        src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}" 
+        mode="aspectFill"
+        binderror="onUserAvatarError"
+      />
+    </view>
+
+    <view class="search-input-wrap">
+      <icon type="search" size="14" color="#999"/>
+      <input 
+        class="search-input" 
+        placeholder="搜索" 
+        placeholder-class="placeholder"
+        value="{{searchKeyword}}"
+        bindinput="onSearchInput"
+        bindconfirm="onSearchConfirm"
+        confirm-type="search"
+      />
+      <icon 
+        wx:if="{{searchKeyword}}" 
+        type="clear" 
+        size="14" 
+        color="#999" 
+        bindtap="clearSearch"
+      />
+    </view>
+    <view class="add-btn" bindtap="onAddChat">+</view>
+  </view>
+
+  <!-- 会话列表 -->
+  <scroll-view 
+    class="chat-list"
+    scroll-y
+    enhanced
+    show-scrollbar="{{false}}"
+    bindscrolltolower="loadMore"
+    lower-threshold="100"
+    scroll-top="{{scrollTop}}"
+  >
+    <view 
+      class="chat-item"
+      wx:for="{{displayList}}"
+      wx:key="_id"
+      bindtap="enterChat"
+      data-chat="{{item}}"
+    >
+      <!-- 头像 -->
+      <view class="avatar-wrap">
+        <image 
+          class="avatar" 
+          src="{{item.displayAvatar || '/images/default-avatar.png'}}"
+          mode="aspectFill"
+          binderror="onChatAvatarError"
+          data-index="{{index}}"
+        />
+        <view class="unread-badge" wx:if="{{item.unread > 0}}">
+          {{item.unread > 99 ? '99+' : item.unread}}
+        </view>
+      </view>
+
+      <!-- 会话信息 -->
+      <view class="chat-info">
+        <view class="chat-header">
+          <text class="chat-name">{{item.displayName}}</text>
+          <text class="chat-time">{{item.lastMessage.timeStr}}</text>
+        </view>
+        <view class="chat-preview">
+          <text class="last-message">{{item.lastMessage.content || '暂无消息'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 搜索无结果 -->
+    <view class="empty-state" wx:if="{{!loading && searchKeyword && displayList.length === 0}}">
+      <text>未找到"{{searchKeyword}}"相关会话</text>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="loading-more" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+    
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{!loading && !searchKeyword && chatList.length === 0}}">
+      <text>暂无会话</text>
+      <text class="empty-tip">点击右上角 + 开始新的聊天</text>
+    </view>
+  </scroll-view>
+  
+  <!-- 联系人选择弹窗 -->
+  <view class="contact-modal" wx:if="{{showContactModal}}" catchtap="hideContactModal">
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text>选择好友</text>
+        <view class="add-friend-btn" bindtap="goToAddFriend">+ 添加</view>
+      </view>
+      
+      <!-- 提示信息 -->
+      <view class="modal-tip" wx:if="{{userList.length > 0}}">
+        <text>长按好友可删除</text>
+      </view>
+    
+      <scroll-view class="contact-list" scroll-y>
+        <view class="empty-friends" wx:if="{{userList.length === 0}}">
+          <text>暂无好友</text>
+          <text class="empty-tip" bindtap="goToAddFriend">点击添加好友</text>
+        </view>
+      
+        <view 
+          class="contact-item"
+          wx:for="{{userList}}"
+          wx:key="_id"
+          bindtap="selectContact"
+          bindlongpress="onFriendLongPress"
+          data-user="{{item}}"
+          data-index="{{index}}"
+        >
+          <image 
+            class="contact-avatar" 
+            src="{{item.avatarUrl || '/images/default-avatar.png'}}" 
+            mode="aspectFill"
+            binderror="onContactAvatarError"
+            data-index="{{index}}"
+          />
+          <text class="contact-name">{{item.nickName || '未知用户'}}</text>
+          <!-- 删除按钮（可选，也可以只用长按） -->
+          <view class="delete-friend-btn" catchtap="onDeleteFriend" data-user="{{item}}" data-index="{{index}}">
+            <text>删除</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+
+  <!-- 用户菜单弹窗 -->
+  <view class="user-menu-modal" wx:if="{{showUserMenu}}" catchtap="hideUserMenu">
+    <view class="user-menu-content" catchtap="stopPropagation">
+      <!-- 用户信息 -->
+      <view class="user-info-header">
+        <image 
+          class="menu-user-avatar" 
+          src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}" 
+          mode="aspectFill"
+          binderror="onUserAvatarError"
+        />
+        <text class="menu-user-name">{{userInfo.nickName || '微信用户'}}</text>
+      </view>
+      
+      <!-- 菜单选项 -->
+      <view class="menu-item" bindtap="goToFriendRequests">
+        <text>好友请求</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="switchAccount">
+        <text>切换账号</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item logout" bindtap="confirmLogout">
+        <text>退出登录</text>
+      </view>
+    </view>
+  </view>
+</view>

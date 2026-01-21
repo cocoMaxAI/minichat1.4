@@ -1,0 +1,57 @@
+<view class="container">
+  <!-- 搜索框 -->
+  <view class="search-section">
+    <view class="search-box">
+      <icon type="search" size="16" color="#999"/>
+      <input 
+        class="search-input" 
+        placeholder="输入昵称或用户ID搜索"
+        value="{{keyword}}"
+        bindinput="onInput"
+        bindconfirm="onSearch"
+      />
+    </view>
+    <view class="search-btn" bindtap="onSearch">搜索</view>
+  </view>
+
+  <!-- 好友请求入口 -->
+  <view class="request-entry" bindtap="goToRequests">
+    <text>好友请求</text>
+    <text class="arrow">›</text>
+  </view>
+
+  <!-- 搜索结果 -->
+  <view class="result-section" wx:if="{{searched}}">
+    <view class="section-title">搜索结果</view>
+    
+    <view wx:if="{{loading}}" class="loading">搜索中...</view>
+    
+    <view wx:elif="{{searchResults.length === 0}}" class="empty">
+      未找到相关用户
+    </view>
+    
+    <view wx:else class="user-list">
+      <view 
+        class="user-item" 
+        wx:for="{{searchResults}}" 
+        wx:key="_id"
+      >
+        <image class="avatar" src="{{item.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"/>
+        <view class="user-info">
+          <text class="nickname">{{item.nickName || '未知用户'}}</text>
+          <text class="user-id">ID: {{item._id}}</text>
+        </view>
+        <view 
+          class="action-btn {{item.friendStatus}}"
+          bindtap="onAddFriend"
+          data-user="{{item}}"
+        >
+          <text wx:if="{{item.friendStatus === 'accepted'}}">已添加</text>
+          <text wx:elif="{{item.friendStatus === 'pending' && item.isRequester}}">等待验证</text>
+          <text wx:elif="{{item.friendStatus === 'pending' && !item.isRequester}}">接受</text>
+          <text wx:else>添加</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

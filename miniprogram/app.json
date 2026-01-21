@@ -1,0 +1,17 @@
+{
+    "pages": [
+      "pages/index/index",
+      "pages/chat/chat",
+      "pages/login/login",
+      "pages/profile/profile",
+      "pages/addFriend/addFriend",
+      "pages/friendRequests/friendRequests"
+    ],
+    "window": {
+      "navigationBarBackgroundColor": "#07C160",
+      "navigationBarTitleText": "微信聊天",
+      "navigationBarTextStyle": "white"
+    },
+    "sitemapLocation": "sitemap.json",
+    "cloud": true
+  }

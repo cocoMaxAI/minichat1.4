@@ -1,0 +1,15 @@
+<scroll-view 
+  class="virtual-container"
+  scroll-y
+  enhanced
+  show-scrollbar="{{false}}"
+  bindscroll="onScroll"
+  bindscrolltolower="onScrollToLower"
+  bindscrolltoupper="onScrollToUpper"
+>
+  <view class="virtual-phantom" style="height: {{totalHeight}}px;">
+    <view class="virtual-content" style="transform: translateY({{offsetY}}px);">
+      <slot wx:for="{{visibleList}}" wx:key="_virtualIndex" name="item" data-item="{{item}}"></slot>
+    </view>
+  </view>
+</scroll-view>
