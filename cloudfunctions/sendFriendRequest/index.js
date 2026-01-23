@@ -41,7 +41,8 @@ exports.main = async (event, context) => {
       const relation = existingRelation.data[0]
       
       if (relation.status === 'accepted') {
-        return { success: true, message: '你们已经是好友了' }
+        // 【修改】增加 status 字段
+        return { success: true, message: '你们已经是好友了', status: 'accepted' }
       }
       
       if (relation.status === 'pending') {
@@ -53,7 +54,8 @@ exports.main = async (event, context) => {
               acceptTime: db.serverDate()
             }
           })
-          return { success: true, message: '已成为好友' }
+          // 【修改】增加 status 字段
+          return { success: true, message: '已成为好友', status: 'accepted' }
         } else {
           // 自己已经发起过请求
           return { success: false, error: '已发送过请求，请等待确认' }
@@ -71,8 +73,7 @@ exports.main = async (event, context) => {
         createTime: db.serverDate()
       }
     })
-
-    return { success: true, message: '好友请求已发送' }
+    return { success: true, message: '好友请求已发送', status: 'pending' }
   } catch (err) {
     console.error('sendFriendRequest 错误:', err)
     return { success: false, error: err.message || '发送请求失败' }

@@ -54,34 +54,33 @@ Page({
 
   async onAddFriend(e) {
     const user = e.currentTarget.dataset.user
-
+  
     if (user.friendStatus === 'accepted') {
       wx.showToast({ title: '已经是好友了', icon: 'none' })
       return
     }
-
+  
     if (user.friendStatus === 'pending' && user.isRequester) {
       wx.showToast({ title: '已发送过请求', icon: 'none' })
       return
     }
-
+  
     wx.showLoading({ title: '发送中...' })
-
+  
     try {
       const res = await wx.cloud.callFunction({
         name: 'sendFriendRequest',
         data: { targetUserId: user._id }
       })
-
+  
       if (res.result && res.result.success) {
         wx.showToast({ title: res.result.message || '请求已发送', icon: 'success' })
         
-        // 更新本地状态
         const results = this.data.searchResults.map(u => {
           if (u._id === user._id) {
             return { 
               ...u, 
-              friendStatus: res.result.message?.includes('好友') ? 'accepted' : 'pending',
+              friendStatus: res.result.status,  // 直接使用返回的 status
               isRequester: true 
             }
           }
